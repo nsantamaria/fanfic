@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 
 page_num = 1
+
 # URL of the search page with tags for The Good Place TV
 url = 'https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works'
 
@@ -19,7 +20,7 @@ stories = soup.find_all('li', {'class': 'work'})
 import csv
 
 # Define the CSV headers
-headers = ['Title', 'Author', 'Summary', 'Hits', 'Kudos', 'Tags', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body']
+headers = ['Title', 'Author', 'Summary', 'Hits', 'Kudos', 'Tags', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Bookmarks']
 
 # Open the CSV file in write mode
 with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
@@ -54,6 +55,13 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             likes = likes_element.text.strip()
         else:
             likes = 'N/A'
+
+        #Extract the bookmarks
+        bookmarks_element = story.find('dd', {'class': 'bookmarks'})
+        if bookmarks_element is not None:
+            bookmarks = bookmarks_element.text.strip()
+        else:
+            bookmarks = 0
 
         # Extract the tags
         tags_list = story.find('ul', {'class': 'tags'})
@@ -108,7 +116,25 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             story_body = story_body_element.text.strip()
         else:
             story_body = 'N/A'
+        
+        #Extract category tags
 
+        category_list = story_soup.find_all("dd", {"class": "category tags"})
+        category = ', '.join([c.text.strip() for c in category_list])
+
+     # Extract the characters
+        characters_list = story_soup.find('dd', {'class': 'character tags'})
+        if characters_list is not None:
+            characters = [c.text.strip() for c in characters_list.find_all('a')]
+        else:
+            characters = 'N/A'
+    
+    #Extract the relationships
+        relationships_list = story_soup.find('dd', {'class': 'relationship tags'})
+        if relationships_list is not None:
+            relationships = [r.text.strip() for r in relationships_list.find_all('a')]
+        else:
+            relationships = 'N/A'
 
 
 
@@ -130,8 +156,12 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
         print('Rating:', ratings)
         print('Warnings:', warnings)
         print('Link', link)
+        print('Category:', category)
+        print('Characters:', characters)
+        print('Relationships:', relationships)
+        print('Bookmarks:', bookmarks)
         print()
 
         #output to CSV
 
-        csv_writer.writerow([title, author, summary, views, likes, tags, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body])
+        csv_writer.writerow([title, author, summary, views, likes, tags, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, bookmarks])
