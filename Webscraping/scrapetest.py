@@ -2,10 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
-page_num = 1
-
-# URL of the search page with tags for The Good Place TV
-url = 'https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works'
+page = 1
+url = f"https://archiveofourown.org/works/search?work_search%5Bquery%5D=&work_search%5Btitle%5D=&work_search%5Bcreators%5D=&work_search%5Brevised_at%5D=&work_search%5Bcomplete%5D=&work_search%5Bcrossover%5D=&work_search%5Bsingle_chapter%5D=0&work_search%5Bword_count%5D=&work_search%5Blanguage_id%5D=&work_search%5Bfandom_names%5D=The+Good+Place+%28TV%29&work_search%5Brating_ids%5D=&work_search%5Bcharacter_names%5D=&work_search%5Brelationship_names%5D=&work_search%5Bfreeform_names%5D=&work_search%5Bhits%5D=&work_search%5Bkudos_count%5D=&work_search%5Bcomments_count%5D=&work_search%5Bbookmarks_count%5D=&work_search%5Bsort_column%5D=_score&work_search%5Bsort_direction%5D=desc&commit=Search"
 
 # Make a request to the URL
 response = requests.get(url)
@@ -20,7 +18,7 @@ stories = soup.find_all('li', {'class': 'work'})
 import csv
 
 # Define the CSV headers
-headers = ['Title', 'Author', 'Summary', 'Hits', 'Kudos', 'Tags', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Bookmarks']
+headers = ['Title', 'Author', 'Commissioned For', 'Summary', 'Hits', 'Kudos', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Other Tags','Bookmarks']
 
 # Open the CSV file in write mode
 with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
@@ -34,6 +32,12 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
         title_element = story.find('h4')
         title = title_element.text.strip().split('by')[0].strip()
         author = title_element.text.strip().split('by')[1].strip()
+        commissioned_for_element = title_element.find("a", href=lambda href: href and "/gifts" in href)
+        if commissioned_for_element:
+            commissioned_for = commissioned_for_element.text.strip()
+        else:
+            commissioned_for = "N/A"
+
 
         # Extract the summary
         body_element = story.find('blockquote', {'class': 'userstuff summary'})
@@ -99,8 +103,6 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
         #Extract the number of words
         words_element = story.find('dd', {'class': 'words'})
 
-        #Extract the genre
-        #genre_element = story.find('dd', {'class': 'freeform'})
 
         #Extract story link
         link_element = story.find('h4', {'class': 'heading'})
@@ -118,11 +120,10 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             story_body = 'N/A'
         
         #Extract category tags
-
         category_list = story_soup.find_all("dd", {"class": "category tags"})
         category = ', '.join([c.text.strip() for c in category_list])
 
-     # Extract the characters
+        #Extract the character tags
         characters_list = story_soup.find('dd', {'class': 'character tags'})
         if characters_list is not None:
             characters = [c.text.strip() for c in characters_list.find_all('a')]
@@ -135,11 +136,22 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             relationships = [r.text.strip() for r in relationships_list.find_all('a')]
         else:
             relationships = 'N/A'
+    #Extract freeform tags
+        freeform_list = story_soup.find('dd', {'class': 'freeform tags'})
+        if freeform_list is not None:
+            freeform = [f.text.strip() for f in freeform_list.find_all('a')]
+        else:
+            freeform = 'N/A'
 
-
-
-
-            
+    #GO to the next page
+        next_page = soup.find('li', {'class': 'next'})
+        if next_page is not None:
+            next_url = next_page.find('a')['href']
+            next_url = 'https://archiveofourown.org' + next_url
+            next_response = requests.get(next_url)
+            soup = BeautifulSoup(next_response.content, 'html.parser')
+            stories = soup.find_all('li', {'class': 'work blurb group'})
+               
 
         # Print out the extracted information for each story
         print('Title:', title)
@@ -147,21 +159,21 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
         print('Summary:', summary)
         print('Hits:', views)
         print('Kudos:', likes)
-        print('Tags:', tags)
         print('Comments:', comments)
         print('Language:', language)
         print('Chapters:', chapters)
         print('Fandom(s):', fandom)
-        #print('Relationship(s):', relationships)
         print('Rating:', ratings)
         print('Warnings:', warnings)
         print('Link', link)
         print('Category:', category)
         print('Characters:', characters)
         print('Relationships:', relationships)
+        print('Other tags:', freeform)
         print('Bookmarks:', bookmarks)
+        print('Comissioned for:', commissioned_for)
         print()
 
         #output to CSV
 
-        csv_writer.writerow([title, author, summary, views, likes, tags, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, bookmarks])
+        csv_writer.writerow([title, author, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, freeform, bookmarks])
