@@ -42,9 +42,8 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             summary = 'N/A'
 
         #Extract the fandom
-        fandom = []
-        fandom.append(story.find("h5", {"class": "fandoms heading"}).find("a").string)
-
+        fandom_list = story.find_all("h5", {"class": "fandoms heading"})
+        fandom = ', '.join([f.text.strip() for f in fandom_list])
 
         # Extract the views
         views = story.find('dd', {'class': 'hits'}).text.strip()
@@ -136,6 +135,3 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
         #output to CSV
 
         csv_writer.writerow([title, author, summary, views, likes, tags, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body])
-
-
-# Define the CSV headers
