@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 
 page = 1
-url = f"https://archiveofourown.org/works/search?work_search%5Bquery%5D=&work_search%5Btitle%5D=&work_search%5Bcreators%5D=&work_search%5Brevised_at%5D=&work_search%5Bcomplete%5D=&work_search%5Bcrossover%5D=&work_search%5Bsingle_chapter%5D=0&work_search%5Bword_count%5D=&work_search%5Blanguage_id%5D=&work_search%5Bfandom_names%5D=The+Good+Place+%28TV%29&work_search%5Brating_ids%5D=&work_search%5Bcharacter_names%5D=&work_search%5Brelationship_names%5D=&work_search%5Bfreeform_names%5D=&work_search%5Bhits%5D=&work_search%5Bkudos_count%5D=&work_search%5Bcomments_count%5D=&work_search%5Bbookmarks_count%5D=&work_search%5Bsort_column%5D=_score&work_search%5Bsort_direction%5D=desc&commit=Search"
+url = f"https://archiveofourown.org/tags/The%20Good%20Place%20%28TV%29/works"
 
 # Make a request to the URL
 response = requests.get(url)
@@ -31,7 +31,8 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
         # Extract the title
         title_element = story.find('h4')
         title = title_element.text.strip().split('by')[0].strip()
-        author = title_element.text.strip().split('by')[1].strip()
+        author_element = title_element.find("a", rel="author")
+        author = author_element.text.strip()
         commissioned_for_element = title_element.find("a", href=lambda href: href and "/gifts" in href)
         if commissioned_for_element:
             commissioned_for = commissioned_for_element.text.strip()
