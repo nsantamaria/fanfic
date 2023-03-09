@@ -1,11 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
+import time
 
 # Define the CSV headers
 
 headers = ['Title', 'Author', 'Date Published','Commissioned For', 'Summary', 'Hits', 'Kudos', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Other Tags','Bookmarks']
-
 page = 1
 
 # Open the CSV file in write mode
@@ -22,7 +22,7 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
         url = f"https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works?page={page}"
 
         # Make a request to the URL
-        response = requests.get(url, timeout=60)
+        response = requests.get(url, timeout=120)
         
         response.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'
 
@@ -168,11 +168,10 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             print(date, title)
             print()
             
-
             #output to CSV
 
             csv_writer.writerow([title, author, date, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, freeform, bookmarks])
-
+            time.sleep(1) 
             # Find the next page URL
             next_page = soup.find('li', {'class': 'next'})
             #Go to that url
