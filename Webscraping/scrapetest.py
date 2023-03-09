@@ -6,7 +6,7 @@ import csv
 headers = ['Title', 'Author', 'Commissioned For', 'Summary', 'Hits', 'Kudos', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Other Tags','Bookmarks']
 
 # Open the CSV file in write mode
-with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
+with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
     # Create a CSV writer object
     csv_writer = csv.writer(csv_file)
     
@@ -33,10 +33,13 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             title_element = story.find('h4')
             title = title_element.text.strip().split('by')[0].strip()
             author_element = title_element.find("a", rel="author")
-            author = author_element.text.strip()
-            #if there is no author, put anonymouse
-            if author == "":
+        
+            if author_element is not None:
+                author = author_element.text.strip()
+            else:   
                 author = "Anonymous"
+
+            
             commissioned_for_element = title_element.find("a", href=lambda href: href and "/gifts" in href)
             if commissioned_for_element:
                 commissioned_for = commissioned_for_element.text.strip()
@@ -159,7 +162,7 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
             print('Fandom(s):', fandom)
             print('Rating:', ratings)
             print('Warnings:', warnings)
-            print('Link', link)
+            print('Link', story_url)
             print('Category:', category)
             print('Characters:', characters)
             print('Relationships:', relationships)
@@ -172,11 +175,11 @@ with open('output.csv', 'w', encoding='utf-8', newline='') as csv_file:
 
             csv_writer.writerow([title, author, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, freeform, bookmarks])
 
-        # Find the next page URL
-        next_page = soup.find('li', {'class': 'next'})
-        if next_page is not None:
-            next_url = next_page.find('a')['href']
-            next_url = 'https://archiveofourown.org' + next_url
-            page += 1
-        else:
-            break
+            # Find the next page URL
+            next_page = soup.find('li', {'class': 'next'})
+            if next_page is not None:
+                next_url = next_page.find('a')['href']
+                next_url = 'https://archiveofourown.org' + next_url
+                page += 1
+            else:
+                break
