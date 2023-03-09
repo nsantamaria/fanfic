@@ -133,8 +133,22 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             story_url = 'https://archiveofourown.org' + link
             story_response = requests.get(story_url)
             story_soup = BeautifulSoup(story_response.content, 'html.parser')
+
+            #Check if there's a button to get the full text
+            full_text_button = story_soup.find('li', {'class': 'chapter entire'})
+            if full_text_button is not None:
+                #Click the button to get the full text
+                print('Full text button found')
+                full_text_url = 'https://archiveofourown.org' + full_text_button.find('a')['href']
+                full_text_response = requests.get(full_text_url)
+                full_text_soup = BeautifulSoup(full_text_response.content, 'html.parser')
+                story_body_element = full_text_soup.find('div', {'id': 'chapters', 'role': 'article'})
+            else:
+                story_body_element = story_soup.find('div', {'class': 'userstuff'})
+
+
+
             #Extract the body of the story
-            story_body_element = story_soup.find('div', {'class': 'userstuff'})
             if story_body_element is not None:
                 story_body = story_body_element.text.strip()
             else:
