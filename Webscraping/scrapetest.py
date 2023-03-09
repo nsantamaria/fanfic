@@ -1,3 +1,6 @@
+###IDK WHY THIS DOESN'T WORK ANYMORE
+###SORRY
+
 import requests
 from bs4 import BeautifulSoup
 import csv
