@@ -3,7 +3,10 @@ from bs4 import BeautifulSoup
 import csv
 
 # Define the CSV headers
-headers = ['Title', 'Author', 'Commissioned For', 'Summary', 'Hits', 'Kudos', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Other Tags','Bookmarks']
+
+headers = ['Title', 'Author', 'Date Published','Commissioned For', 'Summary', 'Hits', 'Kudos', 'Comments', 'Language', 'Fandom', 'Rating', 'Warnings','Chapters', 'Words', 'URL', 'Story Body', 'Category', 'Characters', 'Relationships','Other Tags','Bookmarks']
+
+page = 1
 
 # Open the CSV file in write mode
 with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
@@ -14,12 +17,14 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
     csv_writer.writerow(headers)
 
     # Loop through all pages of search results
-    page = 1
+    
     while True:
         url = f"https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works?page={page}"
 
         # Make a request to the URL
-        response = requests.get(url)
+        response = requests.get(url, timeout=60)
+        
+        response.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'
 
         # Parse the HTML content using Beautiful Soup
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -61,12 +66,21 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             # Extract the views
             views = story.find('dd', {'class': 'hits'}).text.strip()
 
+
             # Extract the likes (kudos)
             likes_element = story.find('dd', {'class': 'kudos'})
             if likes_element is not None:
                 likes = likes_element.text.strip()
             else:
                 likes = 'N/A'
+            
+            #Extract the date
+            date_element = story.find('p', {'class': 'datetime'})
+            if date_element is not None:
+                date = date_element.text.strip()
+            else:
+                date = 'N/A'
+
 
             #Extract the bookmarks
             bookmarks_element = story.find('dd', {'class': 'bookmarks'})
@@ -86,7 +100,7 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             else:
                 language = 'N/A'
 
-
+           #Extract ratings and`
             ratings = []
             warnings = []
             requiredTags = story.find("ul", {"class": "required-tags"}).find_all("li")
@@ -151,35 +165,17 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
                 freeform = 'N/A'
 
             # Print out the extracted information for each story
-            print('Title:', title)
-            print('Author:', author)
-            print('Summary:', summary)
-            print('Hits:', views)
-            print('Kudos:', likes)
-            print('Comments:', comments)
-            print('Language:', language)
-            print('Chapters:', chapters)
-            print('Fandom(s):', fandom)
-            print('Rating:', ratings)
-            print('Warnings:', warnings)
-            print('Link', story_url)
-            print('Category:', category)
-            print('Characters:', characters)
-            print('Relationships:', relationships)
-            print('Other tags:', freeform)
-            print('Bookmarks:', bookmarks)
-            print('Comissioned for:', commissioned_for)
+            print(date, title)
             print()
+            
 
             #output to CSV
 
-            csv_writer.writerow([title, author, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, freeform, bookmarks])
+            csv_writer.writerow([title, author, date, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, freeform, bookmarks])
 
             # Find the next page URL
             next_page = soup.find('li', {'class': 'next'})
+            #Go to that url
             if next_page is not None:
-                next_url = next_page.find('a')['href']
-                next_url = 'https://archiveofourown.org' + next_url
-                page += 1
-            else:
-                break
+                next_page_url = next_page.find('a')['href']
+                page = next_page_url.split('=')[1]
