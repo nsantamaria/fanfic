@@ -16,13 +16,16 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
     # Write the headers to the CSV file
     csv_writer.writerow(headers)
 
-    # Loop through all pages of search results
+    done = False
     
-    while True:
+        # Loop through all pages of search results
+
+    while not done:
         url = f"https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works?page={page}"
 
+        
         # Make a request to the URL
-        response = requests.get(url, timeout=120)
+        response = requests.get(url, timeout=None)
         
         response.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.131 Safari/537.36'
 
@@ -31,6 +34,8 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
 
         # Find all the stories on the page
         stories = soup.find_all('li', {'class': 'work'})
+
+        # If there are no stories, we've reached the end of the search results
 
         # Loop through each story and extract the relevant information
         for story in stories:
@@ -59,12 +64,9 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             else:
                 summary = 'N/A'
 
-            #Extract the fandom
-            fandom_list = story.find_all("h5", {"class": "fandoms heading"})
-            fandom = ', '.join([f.text.strip() for f in fandom_list])
-
             # Extract the views
             views = story.find('dd', {'class': 'hits'}).text.strip()
+
 
 
             # Extract the likes (kudos)
@@ -73,6 +75,8 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
                 likes = likes_element.text.strip()
             else:
                 likes = 'N/A'
+
+            
             
             #Extract the date
             date_element = story.find('p', {'class': 'datetime'})
@@ -112,7 +116,7 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             if comments_element is not None:
                 comments = comments_element.text.strip()
             else:
-                comments = 'N/A'
+                comments = 0
 
             #Extract the number of chapters
             chapters_element = story.find('dd', {'class': 'chapters'})
@@ -124,6 +128,7 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
 
             #Extract the number of words
             words_element = story.find('dd', {'class': 'words'})
+            words = words_element.text.strip()
 
             #Extract story link
             link_element = story.find('h4', {'class': 'heading'})
@@ -154,10 +159,6 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             else:
                 story_body = 'N/A'
 
-            #Extract category tags
-            category_list = story_soup.find_all("dd", {"class": "category tags"})
-            category = ', '.join([c.text.strip() for c in category_list])
-
             #Extract the character tags
             characters_list = story_soup.find('dd', {'class': 'character tags'})
             if characters_list is not None:
@@ -165,6 +166,16 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             else:
                 characters = 'N/A'
 
+            category_list = story_soup.find_all("dd", {"class": "category tags"})
+            category = [c.text.strip() for c in category_list]
+
+            #Extract the fandoms
+            fandom_list = story_soup.find('dd', {'class': 'fandom tags'})
+            if fandom_list is not None:
+                fandom = [f.text.strip() for f in fandom_list.find_all('a')]
+            else:
+                fandom = 'N/A'
+            
             #Extract the relationships
             relationships_list = story_soup.find('dd', {'class': 'relationship tags'})
             if relationships_list is not None:
@@ -184,11 +195,16 @@ with open('goodplace.csv', 'w', encoding='utf-8', newline='') as csv_file:
             
             #output to CSV
 
-            csv_writer.writerow([title, author, date, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words_element, link, story_body, category, characters, relationships, freeform, bookmarks])
-            time.sleep(1) 
+            csv_writer.writerow([title, author, date, commissioned_for, summary, views, likes, comments, language, fandom, ratings, warnings, chapters, words, link, story_body, category, characters, relationships, freeform, bookmarks])
+            time.sleep(5) 
             # Find the next page URL
             next_page = soup.find('li', {'class': 'next'})
+
             #Go to that url
-            if next_page is not None:
+            try:
                 next_page_url = next_page.find('a')['href']
                 page = next_page_url.split('=')[1]
+                time.sleep(5) 
+            except:
+                done = True
+    
