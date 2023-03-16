@@ -1,0 +1,107 @@
+---
+title: "Schurniverse"
+author: "Melvin Adkins"
+date: "2023-03-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Melvin Adkins - Preprocessing 1
+
+```{r}
+#setwd("C:/Users/15639/Documents/Courses/Distributed_Computing")
+```
+
+
+## 2. Load in data with appropriate NA values
+```{r}
+gp <- read.csv("C:/Users/15639/Documents/Courses/Data_Visualizations/goodplace.csv", na.strings = c("N/A",""," "))
+```
+
+## Cleaning
+
+### 1. Gsub to remove brackets, single quotes, and backslashes
+
+Rating and Warnings
+```{r}
+gp$Rating <- gsub("\\['|'\\]", "", gp$Rating)
+gp$Warnings <- gsub("\\['|'\\]", "", gp$Warnings)
+```
+
+Characters
+```{r}
+gp$Characters <- gsub("'", "", gp$Characters)
+gp$Characters <- gsub("\\[|\\]", "", gp$Characters)
+gp$Characters <- gsub(", ", "\", \"", gp$Characters)
+gp$Characters <- gsub("\"", "", gp$Characters, fixed=TRUE)
+gp$Characters <- gsub(",", "", gp$Characters)
+gp$Characters[1:10]
+```
+
+Fandom
+```{r}
+gp$Fandom <- gsub("Fandoms:", "", gp$Fandom)
+gp$Fandom <- gsub("\n", "", gp$Fandom)
+gp$Fandom <- gsub("'", "", gp$Fandom)
+gp$Fandom <- gsub("\\[|\\]", "", gp$Fandom)
+gp$Fandom <- gsub(", ", "\", \"", gp$Fandom)
+gp$Fandom <- gsub("\"", "", gp$Fandom, fixed=TRUE)
+gp$Fandom <- gsub(",", "", gp$Fandom)
+gp$Fandom[1:10]
+```
+
+Words
+```{r}
+gp$Words <- gsub("<", "", gp$Words)
+gp$Words <- gsub("dd", "", gp$Words)
+gp$Words <- gsub(" class=", "", gp$Words)
+gp$Words <- gsub("\"", "", gp$Words)
+gp$Words <- gsub("words>", "", gp$Words)
+gp$Words <- gsub("/>", "", gp$Words)
+gp$Words <- gsub(",", "", gp$Words)
+gp$Words <- as.integer(gp$Words)
+gp$Words[1:10]
+```
+
+Relationships
+```{r}
+gp$Relationships <- gsub("'", "", gp$Relationships)
+gp$Relationships <- gsub("\\[|\\]", "", gp$Relationships)
+gp$Relationships <- gsub(", ", "\", \"", gp$Relationships)
+gp$Relationships <- gsub("\"", "", gp$Relationships, fixed=TRUE)
+gp$Relationships <- gsub(",", "", gp$Relationships)
+gp$Relationships[1:10]
+```
+
+Other Tags
+```{r}
+gp$Other.Tags <- gsub("'", "", gp$Other.Tags)
+gp$Other.Tags <- gsub("\\[|\\]", "", gp$Other.Tags)
+gp$Other.Tags <- gsub(", ", "\", \"", gp$Other.Tags)
+gp$Other.Tags <- gsub("\"", "", gp$Other.Tags, fixed=TRUE)
+gp$Other.Tags <- gsub(",", "", gp$Other.Tags)
+gp$Other.Tags[1:10]
+```
+
+```{r}
+head(gp, 10)
+```
+
+
+## 3. Factoring? - Factor some columns to make visualizations easier?
+```{r}
+# Rating (Gen Audiences, Teen And Up Audiences, Mature, Explicit, Not Rated)
+```
+
+Next Steps:
+
+* Further Preprocessing Correct date/possibly split column into multiple columns - Characters: (First Character, Second Character,...etc))/Factoring
+
+* Determine which columns/information will be used in analysis (possibly all collected information)
+
+* Determine what datasets are needed (For analysis and visualization purposes)
+
+* Use of Packages (dplyr/tidyr/tidyverse etc) to make specific/smaller datasets for visualization and analysis purposes
