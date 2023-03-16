@@ -26,6 +26,7 @@ headers = [
     "Relationships",
     "Other Tags",
     "Bookmarks",
+    "Collections"
 ]
 page = 1
 skipped = 0
@@ -89,7 +90,7 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
             if likes_element is not None:
                 likes = likes_element.text.strip()
             else:
-                likes = "N/A"
+                likes = 0
 
             # Extract the date
             date_element = story.find("p", {"class": "datetime"})
@@ -97,6 +98,12 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 date = date_element.text.strip()
             else:
                 date = "N/A"
+
+            collections_element = story.find("dd", {"class": "collections"})
+            if collections_element is not None:
+                collections = collections_element.text.strip()
+            else:
+                collections = 0
 
             # Extract the bookmarks
             bookmarks_element = story.find("dd", {"class": "bookmarks"})
@@ -170,6 +177,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     )
                 else:
                     story_body_element = story_soup.find("div", {"class": "userstuff"})
+                
+        
 
                 # Extract the body of the story
                 if story_body_element is not None:
@@ -177,24 +186,32 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 else:
                     story_body = "N/A"
 
+
                 # Extract the character tags
-                characters_list = story_soup.find("dd", {"class": "character tags"})
-                if characters_list is not None:
-                    characters = [c.text.strip() for c in characters_list.find_all("a")]
-                else:
-                    characters = "N/A"
+                try:
+                    characters_list = story_soup.find("dd", {"class": "character tags"})
+                    if characters_list is not None:
+                        characters = [c.text.strip() for c in characters_list.find_all("a")]
+                    else:
+                        characters = "N/A"
+                    
+                    category_list = story_soup.find_all("dd", {"class": "category tags"})   
+
+                    if category_list is not None:
+                        category_soup = BeautifulSoup(str(category_list), "html.parser")
+                    # Find all the <a> tags within the <ul> tag
+                    tag_links = category_soup.find_all("ul", {"class": "commas"})[0].find_all("a")
+                    if tag_links is not None:
+                        category = [link.text for link in tag_links]
+                except:
+                    category = "N/A"
+
                 
-                category = []
 
-                category_list = story_soup.find_all("dd", {"class": "category tags"})
-                category_soup = BeautifulSoup(str(category_list), "html.parser")
+                    
 
-                # Find all the <a> tags within the <ul> tag
-                tag_links = category_soup.find_all("ul", {"class": "commas"})[0].find_all("a")
 
-                # Extract the tag text from each <a> tag and store it in a list
-                category = [link.text for link in tag_links]
-
+              
                 # Extract the fandoms
                 fandom_list = story_soup.find("dd", {"class": "fandom tags"})
                 if fandom_list is not None:
@@ -218,11 +235,10 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     freeform = [f.text.strip() for f in freeform_list.find_all("a")]
                 else:
                     freeform = "N/A"
-            except:
-                print("Dead link")
-                skipped += 1
-                print("Total skipped: ", skipped)
+            except Exception as e:
+                print(f"Exception caught for link: {link}. Error message: {e}")
                 continue
+
             # output to CSV
             csv_writer.writerow(
                 [
@@ -247,13 +263,15 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     relationships,
                     freeform,
                     bookmarks,
+                    collections,
                 ]
             )
-            time.sleep(5)
+            time.sleep(1)
 
             # Print out story title and date published once its written to CSV
             print(date, title)
             print()
+
             # Find the next page URL
             next_page = soup.find("li", {"class": "next"})
 
@@ -266,3 +284,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 done = True
     else:
         print("Finished scraping, skipped ", skipped, "stories with dead links")
+
+#To do:
+#1. Figure out why some stories are skipped even though they have good links (FIXED)
+#2. Can I decrease the sleep timer? Just use it in try/except statements?
+#3. Collections? Series? 
