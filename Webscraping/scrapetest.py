@@ -186,14 +186,13 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 else:
                     story_body = "N/A"
 
-
+                characters_list = story_soup.find("dd", {"class": "character tags"})
+                if characters_list is not None:
+                    characters = [c.text.strip() for c in characters_list.find_all("a")]
+                else:
+                    characters = "N/A"
                 # Extract the character tags
                 try:
-                    characters_list = story_soup.find("dd", {"class": "character tags"})
-                    if characters_list is not None:
-                        characters = [c.text.strip() for c in characters_list.find_all("a")]
-                    else:
-                        characters = "N/A"
                     
                     category_list = story_soup.find_all("dd", {"class": "category tags"})   
 
@@ -206,12 +205,6 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 except:
                     category = "N/A"
 
-                
-
-                    
-
-
-              
                 # Extract the fandoms
                 fandom_list = story_soup.find("dd", {"class": "fandom tags"})
                 if fandom_list is not None:
@@ -237,6 +230,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     freeform = "N/A"
             except Exception as e:
                 print(f"Exception caught for link: {link}. Error message: {e}")
+                skipped += 1
+                print (f"We have {skipped} stories thus far")
                 continue
 
             # output to CSV
