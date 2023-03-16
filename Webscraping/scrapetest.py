@@ -116,8 +116,7 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
             else:
                 language = "N/A"
 
-            # Extract ratings and`
-            ratings = []
+            # Extract ratings and warnings
             warnings = []
             requiredTags = story.find("ul", {"class": "required-tags"}).find_all("li")
             ratings = requiredTags[0].find("span", {"class": "text"}).string
@@ -262,7 +261,6 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
             try:
                 next_page_url = next_page.find("a")["href"]
                 page = next_page_url.split("=")[1]
-                time.sleep(5)
             except:
                 # If there's no next page, change our variable to stop the loop after the last story the page is scraped
                 done = True
