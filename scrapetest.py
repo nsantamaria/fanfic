@@ -26,6 +26,7 @@ headers = [
     "Relationships",
     "Other Tags",
     "Bookmarks",
+    "Collections"
 ]
 page = 1
 skipped = 0
@@ -40,7 +41,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
     done = False
     # Loop through all pages of search results until we reach the end
     while not done:
-        url = f"https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works?page={page}"
+        #url = f"https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works?page={page}"
+        url = "https://archiveofourown.org/works/search?commit=Search&work_search%5Bquery%5D=&work_search%5Btitle%5D=Danganronpa%3A+Despair+for+Dummies&work_search%5Bcreators%5D=&work_search%5Brevised_at%5D=&work_search%5Bcomplete%5D=&work_search%5Bcrossover%5D=&work_search%5Bsingle_chapter%5D=0&work_search%5Bword_count%5D=&work_search%5Blanguage_id%5D=&work_search%5Bfandom_names%5D=&work_search%5Brating_ids%5D=&work_search%5Bcharacter_names%5D=&work_search%5Brelationship_names%5D=&work_search%5Bfreeform_names%5D=&work_search%5Bhits%5D=&work_search%5Bkudos_count%5D=&work_search%5Bcomments_count%5D=&work_search%5Bbookmarks_count%5D=&work_search%5Bsort_column%5D=_score&work_search%5Bsort_direction%5D=desc"
         # Make a request to the URL
         response = requests.get(url, timeout=None)
 
@@ -98,6 +100,12 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
             else:
                 date = "N/A"
 
+            collections_element = story.find("dd", {"class": "collections"})
+            if collections_element is not None:
+                collections = collections_element.text.strip()
+            else:
+                collections = 0
+
             # Extract the bookmarks
             bookmarks_element = story.find("dd", {"class": "bookmarks"})
             if bookmarks_element is not None:
@@ -151,6 +159,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 story_response = requests.get(story_url)
                 story_soup = BeautifulSoup(story_response.content, "html.parser")
 
+                print("Story URL:", story_url)
+
                 # Check if there's a button to get the full text
                 full_text_button = story_soup.find("li", {"class": "chapter entire"})
                 if full_text_button is not None:
@@ -170,6 +180,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     )
                 else:
                     story_body_element = story_soup.find("div", {"class": "userstuff"})
+                
+        
 
                 # Extract the body of the story
                 if story_body_element is not None:
@@ -177,24 +189,32 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 else:
                     story_body = "N/A"
 
+                print('Story extracted')
+
                 # Extract the character tags
                 characters_list = story_soup.find("dd", {"class": "character tags"})
                 if characters_list is not None:
                     characters = [c.text.strip() for c in characters_list.find_all("a")]
                 else:
                     characters = "N/A"
-                
-                category = []
 
+                print('Characters extracted')
+                
                 category_list = story_soup.find_all("dd", {"class": "category tags"})
-                category_soup = BeautifulSoup(str(category_list), "html.parser")
+                print(category_list)
+                if category_list is category:
+                    category_soup = BeautifulSoup(str(category_list), "html.parser")
 
                 # Find all the <a> tags within the <ul> tag
-                tag_links = category_soup.find_all("ul", {"class": "commas"})[0].find_all("a")
+                    tag_links = category_soup.find_all("ul", {"class": "commas"})[0].find_all("a")
+                    if tag_links is not None:
+                        category = [link.text for link in tag_links]
+                else:
+                    category = "N/A"
 
-                # Extract the tag text from each <a> tag and store it in a list
-                category = [link.text for link in tag_links]
+                print('Tags extracted')
 
+              
                 # Extract the fandoms
                 fandom_list = story_soup.find("dd", {"class": "fandom tags"})
                 if fandom_list is not None:
@@ -218,11 +238,10 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     freeform = [f.text.strip() for f in freeform_list.find_all("a")]
                 else:
                     freeform = "N/A"
-            except:
-                print("Dead link")
-                skipped += 1
-                print("Total skipped: ", skipped)
+            except Exception as e:
+                print(f"Exception caught for link: {link}. Error message: {e}")
                 continue
+
             # output to CSV
             csv_writer.writerow(
                 [
@@ -247,13 +266,15 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     relationships,
                     freeform,
                     bookmarks,
+                    collections,
                 ]
             )
-            time.sleep(5)
+            time.sleep(1)
 
             # Print out story title and date published once its written to CSV
             print(date, title)
             print()
+
             # Find the next page URL
             next_page = soup.find("li", {"class": "next"})
 
@@ -266,3 +287,8 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 done = True
     else:
         print("Finished scraping, skipped ", skipped, "stories with dead links")
+
+#To do:
+#1. Figure out why some stories are skipped even though they have good links
+#2. Can I decrease the sleep timer? Just use it in try/except statements?
+#3. Collections? Series? 
