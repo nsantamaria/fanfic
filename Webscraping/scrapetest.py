@@ -31,7 +31,7 @@ headers = [
 page = 1
 skipped = 0
 # Open the CSV file in write mode
-with open("brooklyn99.csv", "w", encoding="utf-8", newline="") as csv_file:
+with open("brooklyn99-2.csv", "w", encoding="utf-8", newline="") as csv_file:
     # Create a CSV writer object
     csv_writer = csv.writer(csv_file)
 
@@ -43,7 +43,12 @@ with open("brooklyn99.csv", "w", encoding="utf-8", newline="") as csv_file:
     while not done:
         url = f"https://archiveofourown.org/tags/Brooklyn%20Nine-Nine%20(TV)/works?page={page}"
         # Make a request to the URL
-        response = requests.get(url, timeout=None)
+        try:
+            response = requests.get(url, timeout=None)
+        except:
+            print("Error: Request timed out")
+            time.sleep(5)
+            continue
 
         response.headers[
             "User-Agent"
@@ -261,7 +266,7 @@ with open("brooklyn99.csv", "w", encoding="utf-8", newline="") as csv_file:
                     collections,
                 ]
             )
-            time.sleep(1)
+            time.sleep(2)
 
             # Print out story title and date published once its written to CSV
             print(date, title)
