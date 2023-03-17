@@ -1,4 +1,5 @@
-This is a program using the "Beautiful Soup" package to scrape all the pages of search results inputted from AO3. Currently, the URl is hardcoded, but ultimately I would like to have it from command line.
+This is a program using the "Beautiful Soup" package to scrape all the pages of search results inputted from AO3. 
+Currently, the URL is hardcoded, but ultimately I would like to have it from command line.
 
 It extracts the following columns:
 title: title of the story)
@@ -11,17 +12,18 @@ kudos: number of kudos (AKA likes)
 comments: number of comments
 language: language of the story
 fandom: fandoms the story is a part of (inputted by the story author)
-ratings: see: https://archiveofourown.org/help/symbols-key.html)
+ratings: see: https://archiveofourown.org/help/symbols-key.html
 warnings: warnings inputted by story author
 chapters: number of chapters. The demoninator can be set to arbitrarily high by the author to my understanding
 words: word count
-link: URL of the story add "archiveofourown.org" before hte URL
+link: URL of the story add "archiveofourown.org" before URL
 story_body: the body of the fan fiction
 category: categories of the relationship pairings (AKA M/F, M/M). "Gen or General means no romantic or sexual relationships, or relationships which aren't the main focus of the work." I did notice some will have relationship pairings but still would be Gen. It can also be set to other. N/A if not present.
 characters: characters from the work as set by the author (these are tags)
 relationships: similar to above, but are relationship pairings (ie Mickey Mouse/Minnie Mouse)
 freeform: tags that don't fit into the above categories and are written by the user.
 bookmarks: number of bookmarks
-collections: number of times the story has been added to a collection
+collections: number of times the story has been added to a collection (new)
 
-The script also includes error handling to skip stories with dead links or missing data. Additionally, the script sets a custom User-Agent header to avoid being blocked by the website's bot protection system.
+The script also includes error handling to skip stories with dead links or missing data. 
+Additionally, the script sets a custom User-Agent header to avoid being blocked by the website's bot protection system.
