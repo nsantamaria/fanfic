@@ -1,0 +1,46 @@
+---
+title: "Word Analysis"
+author: "Nikolas Santamaria"
+date: "2023-03-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(tm)
+library(wordcloud)
+library(dplyr)
+ao3 <- read.csv("/Users/niks/Documents/goodplace.csv")
+
+```
+
+```{r}
+
+all_words <-ao3$Story.Body[1:nrow(ao3)]
+
+
+```
+
+```{r}
+all_words <- Corpus(VectorSource(all_words))
+```
+all_words <- all_words %>%
+  tm_map(removeNumbers) %>%
+  tm_map(removePunctuation) %>%
+  tm_map(stripWhitespace)
+all_words <- tm_map(all_words, content_transformer(tolower))
+all_words_fixed <- tm_map(all_words, removeWords, stopwords("english"))
+
+```
+
+```{r}
+dtm <- TermDocumentMatrix(all_words) 
+matrix <- as.matrix(dtm) 
+words <- sort(rowSums(matrix),decreasing=TRUE) 
+df <- data.frame(word = names(words),freq=words)
+
+## adapted from https://towardsdatascience.com/create-a-word-cloud-with-r-bde3e7422e8a
+
+
+words[1:100]
+```
