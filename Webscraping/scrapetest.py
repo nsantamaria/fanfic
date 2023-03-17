@@ -31,7 +31,7 @@ headers = [
 page = 1
 skipped = 0
 # Open the CSV file in write mode
-with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
+with open("brooklyn99.csv", "w", encoding="utf-8", newline="") as csv_file:
     # Create a CSV writer object
     csv_writer = csv.writer(csv_file)
 
@@ -41,7 +41,7 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
     done = False
     # Loop through all pages of search results until we reach the end
     while not done:
-        url = f"https://archiveofourown.org/tags/The%20Good%20Place%20(TV)/works?page={page}"
+        url = f"https://archiveofourown.org/tags/Brooklyn%20Nine-Nine%20(TV)/works?page={page}"
         # Make a request to the URL
         response = requests.get(url, timeout=None)
 
@@ -155,7 +155,7 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
             # Try statement to skip stories with dead links
             try:
                 story_url = "https://archiveofourown.org" + link + "style=disable"
-                story_response = requests.get(story_url)
+                story_response = requests.get(story_url, timeout=None)
                 story_soup = BeautifulSoup(story_response.content, "html.parser")
 
                 # Check if there's a button to get the full text
@@ -168,7 +168,7 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                         + full_text_button.find("a")["href"]
                         + "style=disable"
                     )
-                    full_text_response = requests.get(full_text_url)
+                    full_text_response = requests.get(full_text_url, timeout=None)
                     full_text_soup = BeautifulSoup(
                         full_text_response.content, "html.parser"
                     )
@@ -192,8 +192,7 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                 else:
                     characters = "N/A"
                 # Extract the character tags
-                try:
-                    
+                try:        
                     category_list = story_soup.find_all("dd", {"class": "category tags"})   
 
                     if category_list is not None:
@@ -228,10 +227,11 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
                     freeform = [f.text.strip() for f in freeform_list.find_all("a")]
                 else:
                     freeform = "N/A"
+
             except Exception as e:
-                print(f"Exception caught for link: {link}. Error message: {e}")
+                print(f"(◡︵◡) Exception caught for link: {link}. Error message: {e}. Skipping story...")
                 skipped += 1
-                print (f"We have {skipped} stories thus far")
+                print (f"We have skipped {skipped} stories thus far")
                 continue
 
             # output to CSV
@@ -282,5 +282,5 @@ with open("goodplace.csv", "w", encoding="utf-8", newline="") as csv_file:
 
 #To do:
 #1. Figure out why some stories are skipped even though they have good links (FIXED)
-#2. Can I decrease the sleep timer? Just use it in try/except statements?
+#2. Can I decrease the sleep timer? Just use it in try/except statements? 
 #3. Collections? Series? 
