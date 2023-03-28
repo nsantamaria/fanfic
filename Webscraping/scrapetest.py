@@ -31,7 +31,7 @@ headers = [
 page = 1
 skipped = 0
 # Open the CSV file in write mode
-with open("brooklyn99-2.csv", "w", encoding="utf-8", newline="") as csv_file:
+with open("office.csv", "w", encoding="utf-8", newline="") as csv_file:
     # Create a CSV writer object
     csv_writer = csv.writer(csv_file)
 
@@ -41,7 +41,7 @@ with open("brooklyn99-2.csv", "w", encoding="utf-8", newline="") as csv_file:
     done = False
     # Loop through all pages of search results until we reach the end
     while not done:
-        url = f"https://archiveofourown.org/tags/Brooklyn%20Nine-Nine%20(TV)/works?page={page}"
+        url = f"https://archiveofourown.org/tags/The%20Office%20(US)/works?page={page}"
         # Make a request to the URL
         try:
             response = requests.get(url, timeout=None)
