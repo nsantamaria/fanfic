@@ -1,5 +1,6 @@
 This is a program using the "Beautiful Soup" package to scrape all the pages of search results inputted from AO3. 
-Currently, the URL is hardcoded, but ultimately I would like to have it from command line.
+
+It will prompt for the name of the work you want to scrape for.
 
 It extracts the following columns:
 title: title of the story)
@@ -23,7 +24,8 @@ characters: characters from the work as set by the author (these are tags)
 relationships: similar to above, but are relationship pairings (ie Mickey Mouse/Minnie Mouse)
 freeform: tags that don't fit into the above categories and are written by the user.
 bookmarks: number of bookmarks
-collections: number of times the story has been added to a collection (new)
+collections: number of times the story has been added to a collection 
+series: some works are part of a series, it will say the series and which part (ie Part 420 of "Frustrated Data Science Student")
 
 The script also includes error handling to skip stories with dead links or missing data. 
 Additionally, the script sets a custom User-Agent header to avoid being blocked by the website's bot protection system.
