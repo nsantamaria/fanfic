@@ -1,0 +1,1005 @@
+---
+title: "Distributed Computing Project 1 Plots"
+author: "Aaron Spielman"
+date: "2023-04-07"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning = F, message = F}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(cowplot)
+library(lubridate)
+library(wordcloud)
+library(RColorBrewer)
+
+```
+
+```{r warning = F, message = F}
+
+schurniverse <- read.csv(file="C:/Users/aaron/Downloads/all_munged_shortened_stories.csv") %>% select(-c(Story_Body))
+office <- read.csv(file="C:/Users/aaron/Downloads/office_munged.csv")
+brooklyn <- read.csv(file="C:/Users/aaron/Downloads/Brooklyn_munged.csv")
+parks <- read.csv(file="C:/Users/aaron/Downloads/parksandrec_munged.csv")
+goodplace <- read.csv(file="C:/Users/aaron/Downloads/goodplace_munged.csv")
+
+schurniverse <- select(schurniverse, -c(X))
+office <- select(office, -c(X, X.1, Search_Page, Collections, Story_Body))
+brooklyn <- select(brooklyn, -c(X, X.1, Search_Page, Collections, Story_Body))
+parks <- select(parks, -c(X, X.1, Search_Page, Collections, Story_Body))
+goodplace <- select(goodplace, -c(X, X.1, Search_Page, Collections, Story_Body))
+
+```
+
+
+## Total Popularity
+
+```{r warning = F, message = F}
+
+combined <- rbind(mutate(office, fandom = "The Office"), 
+                  mutate(parks, fandom = "Parks and Rec"), 
+                  mutate(goodplace, fandom = "The Good Place"), 
+                  mutate(brooklyn, fandom = "Brooklyn Nine-Nine"))
+
+total_rows <- c(nrow(office), nrow(parks), nrow(brooklyn), nrow(goodplace))
+
+df <- data.frame(Fanfic = c("The Office", "Parks and Rec", "Brooklyn Nine-Nine", "The Good Place"),
+                 Total_Rows = total_rows)
+
+ggplot(df, aes(x = Fanfic, y = Total_Rows, fill = Fanfic)) +
+  geom_col() +
+  labs(title = "Total Number of Works by Fandom in the Schurniverse", x = "Fanfic", y = "Number of Works") +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
+  theme_classic() +
+  guides(fill = FALSE)
+
+
+# add fanfics per year by show
+
+
+
+```
+
+## Word Clouds for Tags
+
+```{r warning = F, message = F}
+
+# Schurniverse
+tags <- gsub("[\\[\\]\"]", "", unlist(strsplit(schurniverse$Other_Tags, ", ")))
+tags <- gsub("^\\[|\\]$", "", tags)
+tags <- gsub("^'|'$", "", tags)
+tags <- tags[tags != "" & !is.na(tags) & tags != "N/A"]
+# count frequency of each tag
+tag_counts <- table(tags)
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.2, "Most Frequent Tags in the Schurniverse")
+wordcloud(words = names(tag_counts), freq = tag_counts, min.freq = 10,
+          max.words = 30, random.order = FALSE, rot.per = 0.35,
+          colors = brewer.pal(8, "Dark2"))
+
+
+
+# Parks and Rec
+tags <- gsub("[\\[\\]\"]", "", unlist(strsplit(parks$Other_Tags, ", ")))
+tags <- gsub("^\\[|\\]$", "", tags)
+tags <- gsub("^'|'$", "", tags)
+tags <- tags[tags != "" & !is.na(tags) & tags != "N/A"]
+# count frequency of each tag
+tag_counts <- table(tags)
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.2, "Most Frequent Tags (Parks and Rec)")
+wordcloud(words = names(tag_counts), freq = tag_counts, min.freq = 10,
+          max.words = 30, random.order = FALSE, rot.per = 0.35,
+          colors = brewer.pal(8, "Dark2"))
+
+
+
+# The Office
+tags <- gsub("[\\[\\]\"]", "", unlist(strsplit(office$Other_Tags, ", ")))
+tags <- gsub("^\\[|\\]$", "", tags)
+tags <- gsub("^'|'$", "", tags)
+tags <- tags[tags != "" & !is.na(tags) & tags != "N/A"]
+# count frequency of each tag
+tag_counts <- table(tags)
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.2, "Most Frequent Tags (The Office)")
+wordcloud(words = names(tag_counts), freq = tag_counts, min.freq = 10,
+          max.words = 30, random.order = FALSE, rot.per = 0.35,
+          colors = brewer.pal(8, "Dark2"))
+
+
+
+# Brooklyn Nine-Nine
+tags <- gsub("[\\[\\]\"]", "", unlist(strsplit(brooklyn$Other_Tags, ", ")))
+tags <- gsub("^\\[|\\]$", "", tags)
+tags <- gsub("^'|'$", "", tags)
+tags <- tags[tags != "" & !is.na(tags) & tags != "N/A"]
+# count frequency of each tag
+tag_counts <- table(tags)
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.2, "Most Frequent Tags (Brooklyn Nine-Nine)")
+wordcloud(words = names(tag_counts), freq = tag_counts, min.freq = 10,
+          max.words = 30, random.order = FALSE, rot.per = 0.35,
+          colors = brewer.pal(8, "Dark2"))
+
+
+
+# The Good Place
+tags <- gsub("[\\[\\]\"]", "", unlist(strsplit(goodplace$Other_Tags, ", ")))
+tags <- gsub("^\\[|\\]$", "", tags)
+tags <- gsub("^'|'$", "", tags)
+tags <- tags[tags != "" & !is.na(tags) & tags != "N/A"]
+# count frequency of each tag
+tag_counts <- table(tags)
+layout(matrix(c(1, 2), nrow=2), heights=c(1, 4))
+par(mar=rep(0, 4))
+plot.new()
+text(x=0.5, y=0.2, "Most Frequent Tags (The Good Place)")
+wordcloud(words = names(tag_counts), freq = tag_counts, min.freq = 10,
+          max.words = 30, random.order = FALSE, rot.per = 0.35,
+          colors = brewer.pal(8, "Dark2"))
+
+
+```
+
+
+## Number of works per year over time
+
+```{r warning = F, message = F}
+
+parks$Date_Published <- as.Date(parks$Date_Published)
+parks$month_published <- format(parks$Date_Published, "%Y")
+parks %>%
+  group_by(month_published) %>%
+  summarise(num_stories = n()) %>%
+  ggplot(aes(x = month_published, y = num_stories)) +
+  geom_bar(stat = "identity", fill = "dodgerblue") +
+  labs(x = "Year", y = "Number of Stories", title = "Number of Stories Published by Year (Parks and Rec)") + theme_minimal()
+
+
+office$Date_Published <- as.Date(office$Date_Published)
+office$month_published <- format(office$Date_Published, "%Y")
+office %>%
+  group_by(month_published) %>%
+  summarise(num_stories = n()) %>%
+  ggplot(aes(x = month_published, y = num_stories)) +
+  geom_bar(stat = "identity", fill = "dodgerblue") +
+  labs(x = "Year", y = "Number of Stories", title = "Number of Stories Published by Year (The Office)") + theme_minimal()
+
+
+brooklyn$Date_Published <- as.Date(brooklyn$Date_Published)
+brooklyn$month_published <- format(brooklyn$Date_Published, "%Y")
+brooklyn %>%
+  group_by(month_published) %>%
+  summarise(num_stories = n()) %>%
+  ggplot(aes(x = month_published, y = num_stories)) +
+  geom_bar(stat = "identity", fill = "dodgerblue") +
+  labs(x = "Year", y = "Number of Stories", title = "Number of Stories Published by Year (Brooklyn Nine-Nine)") + theme_minimal()
+
+
+goodplace$Date_Published <- as.Date(goodplace$Date_Published)
+goodplace$month_published <- format(goodplace$Date_Published, "%Y")
+goodplace %>%
+  group_by(month_published) %>%
+  summarise(num_stories = n()) %>%
+  ggplot(aes(x = month_published, y = num_stories)) +
+  geom_bar(stat = "identity", fill = "dodgerblue") +
+  labs(x = "Year", y = "Number of Stories", title = "Number of Stories Published by Year (The Good Place)") + theme_minimal()
+
+
+```
+
+## reset data so no fanfics are filtered out
+
+```{r message = F, warning = F}
+
+office <- read.csv(file="C:/Users/aaron/Downloads/office_munged.csv")
+brooklyn <- read.csv(file="C:/Users/aaron/Downloads/Brooklyn_munged.csv")
+parks <- read.csv(file="C:/Users/aaron/Downloads/parksandrec_munged.csv")
+goodplace <- read.csv(file="C:/Users/aaron/Downloads/goodplace_munged.csv")
+
+office <- select(office, -c(X, X.1, Search_Page, Collections, Story_Body))
+brooklyn <- select(brooklyn, -c(X, X.1, Search_Page, Collections, Story_Body))
+parks <- select(parks, -c(X, X.1, Search_Page, Collections, Story_Body))
+goodplace <- select(goodplace, -c(X, X.1, Search_Page, Collections, Story_Body))
+
+combined <- rbind(mutate(office, fandom = "The Office"), 
+                  mutate(parks, fandom = "Parks and Rec"), 
+                  mutate(goodplace, fandom = "The Good Place"), 
+                  mutate(brooklyn, fandom = "Brooklyn Nine-Nine"))
+
+brooklyn$Date_Published <- as.Date(brooklyn$Date_Published)
+brooklyn$month_published <- format(brooklyn$Date_Published, "%Y")
+
+combined$Date_Published <- as.Date(combined$Date_Published)
+combined$month_published <- format(combined$Date_Published, "%Y")
+
+```
+
+
+
+## Combined df visuals
+
+```{r message = F, warning = F}
+
+
+ggplot(combined, aes(x = fandom, y = Hits, fill = fandom)) +
+  geom_boxplot(outlier.shape = NA) + 
+  scale_fill_brewer(palette = "Set3") +
+  labs(title = "Distribution of Hits in the Schurniverse (Excluding outliers)", x = "Fandom") + 
+  coord_cartesian() + ylim(0, 7000) + theme_bw() +
+  guides(fill=FALSE) +
+  theme(legend.position = "none")
+
+fandom_yr <- combined %>%
+  mutate(year = as.integer(month_published)) %>%
+  filter(year > 2000) %>%
+  #mutate() %>%
+  group_by(fandom, year) %>%
+  summarise(works = n(),
+              hits = sum(Hits, na.rm = T),
+              kudos = sum(Kudos, na.rm = T),
+              bookmarks = sum(Bookmarks, na.rm = T),
+              authors = length(unique(Author))) %>%
+  mutate(hits_per_work = hits/works,
+              kudos_per_work = kudos/works,
+              kudos_per_100_hits = 100*(kudos/hits),
+              works_per_author = works/authors) %>%
+  ungroup()
+
+
+ggplot(fandom_yr, aes(x = year, y = works, group = fandom, color = fandom)) + 
+  geom_line(lwd = 1) +
+  theme_bw() +
+  labs(x = "Year", y = "Fanfics", title = "Number of Fanfics per Year", color = "Fandom") +
+  scale_x_continuous(breaks = c(2006:2023)) + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+# Brooklyn 9-9 has by far the most number of works overall, including 2023
+
+ggplot(fandom_yr, aes(x = year, y = hits_per_work, group = fandom, color = fandom)) + 
+  geom_line(lwd = 1) + theme_bw() +
+  labs(x = "Year", y = "Fanfics", title = "Average Hits per Fanfic", color = "Fandom") +
+  scale_x_continuous(breaks = c(2006:2023)) + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+# Older works have more hits of course, but of works released in the last few years, Brooklyn 9-9 still has highest hits/work
+
+ggplot(fandom_yr, aes(x = year, y = kudos_per_work, group = fandom, color = fandom)) + 
+  geom_line(lwd = 1) + theme_bw() +
+  labs(x = "Year", y = "Kudos", title = "Average Kudos per Fanfic", color = "Fandom") +
+  scale_x_continuous(breaks = c(2006:2023)) + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+# Kudos follows similar pattern to hits, Brooklyn 9-9 most popular overall and in last few years
+
+ggplot(fandom_yr, aes(x = year, y = kudos_per_100_hits, group = fandom, color = fandom)) + 
+  geom_line(lwd = 1) + theme_bw() +
+  labs(x = "Year", y = "Kudos/100 Hits", title = "Average Kudos per 100 Hits", color = "Fandom") +
+  scale_x_continuous(breaks = c(2006:2023)) + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+# Kudos per hit looks different. Overall, Good Place fans are giving the most kudos, but Brooklyn 9-9 is still on top for 2023
+
+ggplot(fandom_yr, aes(x = year, y = works_per_author, group = fandom, color = fandom)) + 
+  geom_line(lwd = 1) + theme_bw() +
+  labs(x = "Year", y = "Fanfics", title = "Average Fanfics per Author", color = "Fandom") +
+  scale_x_continuous(breaks = c(2006:2023)) + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+# In 2023 so far there are between 1 and 2 works per author for all fandoms, indicating that no fandom is dominated but a single or small group of authors
+
+```
+
+
+## Investigating trends with the top 10% of Authors (hits/fanfic) in the Schurniverse
+Top 10% = authors with the highest average hits
+
+```{r warning = F, message = F}
+
+
+# PLOT 1: TOP 10% OF AUTHORS RATINGS BAR PLOT VS. ALL AUTHORS IN THE SCHURNIVERSE
+
+author <- combined %>% group_by(Author) %>% 
+  summarise(n_works = length(unique(Title)),
+            n_fandoms = length(unique(fandom)),
+            Hits = sum(Hits, na.rm = T),
+            total_words = sum(Words)) %>%
+  mutate(hits_per_work = Hits/n_works,
+         words_per_work = total_words/n_works) %>%
+  ungroup()
+
+
+author_top_10 <- combined %>% group_by(Author) %>% 
+  summarise(n_works = n(),
+            n_fandoms = length(unique(fandom)),
+            Hits = sum(Hits, na.rm = T),
+            total_words = sum(Words)) %>%
+  mutate(hits_per_work = Hits/n_works,
+         words_per_work = total_words/n_works) %>%
+  ungroup() %>%
+  arrange(desc(hits_per_work)) %>% filter(row_number() <= 378)
+
+top_10_list <- author_top_10 %>% pull(Author)
+
+rating <- combined %>% group_by(Rating) %>% summarise(n = n()) %>%
+  dplyr::mutate(Rating = ordered(Rating, levels = c("Not Rated", "General Audiences", "Teen And Up Audiences", "Mature", "Explicit")))
+rating$n <- rating$n/sum(rating$n, na.rm = T)
+rating_top_10 <- combined %>% filter(Author %in% top_10_list) %>% group_by(Rating) %>% summarise(n = n())%>%
+  dplyr::mutate(Rating = ordered(Rating, levels = c("Not Rated", "General Audiences", "Teen And Up Audiences", "Mature", "Explicit")))
+rating_top_10$n <- rating_top_10$n/sum(rating_top_10$n, na.rm = T)
+
+# a <- ggplot(rating) + 
+#   geom_bar(aes(x = Rating, y = n, fill = Rating), 
+#   stat = "identity") + 
+#   scale_y_continuous(labels = scales:: percent_format(), limits = c(0, 0.42)) +
+#   guides(fill = "none") +
+#   labs(title = "Rating Popularity", subtitle = "All Fanfictions in the Schurniverse", x = "Rating",y = " ") + 
+#   theme_bw() + theme(axis.text.x = element_text(angle = -45, hjust = 0)) 
+# 
+# b <- ggplot(rating_top_10) + 
+#   geom_bar(aes(x = Rating, y = n, fill = Rating), 
+#   stat = "identity") + 
+#   guides(fill = "none") +
+#   scale_y_continuous(labels = scales:: percent_format(), limits = c(0, 0.42)) +
+#   labs(title = "Rating Popularity", subtitle = "Top 10% of authors in the Schurniverse", 
+#        x = "Rating",y = " ") + 
+#   theme_bw() + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+# 
+# 
+# plot_grid(a, b)
+
+
+
+rating$dataset <- "All Fanfics"
+rating_top_10$dataset <- "Fanfics by Top 10% Authors"
+
+combined_rating <- rbind(rating, rating_top_10)
+
+ggplot(combined_rating) + 
+  geom_bar(aes(x = Rating, y = n, fill = dataset), stat = "identity", position = "dodge") + 
+  scale_y_continuous(labels = scales::percent_format(), limits = c(0, 0.42)) +
+  guides(fill = guide_legend(title = " ")) +
+  labs(title = "Rating Popularity",
+       subtitle = "Schurniverse Fanfictions",
+       x = "Rating",
+       y = " ") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) 
+
+
+
+# PLOT 2: DO TOP AUTHORS WRITE SHORTER OR LONGER WORKS?
+
+ggplot() +
+  geom_density(author, mapping = aes(x = words_per_work, alpha = 0.5, fill = "All Authors")) +
+  geom_density(author_top_10, mapping = aes(x = words_per_work, alpha = 0.5, fill = "Top 10% of authors")) + 
+  xlim(0,50000) + guides(alpha = "none", fill = guide_legend(title = NULL)) + 
+  labs(title = "Density Plot of Word Count per Fanfic in the Schurniverse", x = "Words per Fanfic", y = "Density") + theme_classic()
+
+combined$kudos_per_100_hits <- (combined$Kudos/combined$Hits)*100
+authors_2plus <- combined %>% filter(Author %in% (filter(author, n_works > 1)$Author))
+
+# all authors: is current kudos better than start? how high was start? how high is current?
+samp_authors <- author_top_10 %>% arrange(desc(n_works)) %>% filter(row_number() <6) %>% pull(Author)#sample(unique(authors_2plus$Author), 10)
+test <- authors_2plus %>% dplyr::filter(Author %in% samp_authors) #authors_2plus[sample(nrow(authors_2plus), 10), ]
+ggplot(test) + geom_smooth(aes(x = Date_Published, y = Hits, color = Author, group = Author),
+                           method = "lm", se = FALSE, show.legend = F) +
+  geom_point(aes(x = Date_Published, y = Hits, color = Author, group = Author)) +
+  labs(title = "Hits for Top 5 Most Prolific Authors in the Top 10%", x = "Date Published", y = "Hits") + theme_bw()
+
+ggplot(test) + geom_smooth(aes(x = Date_Published, y = kudos_per_100_hits, color = Author, group = Author),
+                           method = "lm", se = FALSE, show.legend = F) +
+  geom_point(aes(x = Date_Published, y = kudos_per_100_hits, color = Author, group = Author)) +
+  labs(title = "Kudos Rate for Top 5 Most Prolific Authors in the Top 10%", x = "Date Published", y = "Kudos per 100 Hits") + theme_bw()
+
+# top 10% authors: is current kudos better than start? how high was start? how high is current?
+authors_2plus_top10 <- authors_2plus %>% filter(Author %in% top_10_list)
+
+test <- authors_2plus %>% group_by(Author) %>% 
+  summarise(cor = cor(as.numeric(Date_Published), Hits)) %>%
+  mutate(top_10 = Author %in% top_10_list)
+
+ggplot(test) +geom_density(aes(x = cor, fill = top_10, group = top_10, alpha = 0.5)) + 
+  labs(title = "Correlation Between Hits and Time", y = "Density", x = "<- Hits Decreasing Over Time | Hits Increasing Over Time ->") + 
+  guides(alpha = "none", fill = guide_legend(title = "Top 10% Author")) +
+  theme_classic()
+
+
+
+mean(combined$Hits)
+mean(author_top_10$hits_per_work)
+
+mean(combined$Words, na.rm = T)
+mean(author_top_10$words_per_work)
+
+```
+
+## Readability Analysis for The Good Place
+
+```{r message = F, warning = F}
+
+
+grade <- read.csv(file="C:/Users/aaron/Downloads/goodplace_grade_levels.csv")
+fk <- read.csv(file="C:/Users/aaron/Downloads/goodplace_fk_scores.csv")
+
+
+author_gp <- goodplace %>% filter(Words > 100)
+
+author_gp <- author_gp %>% cbind(fk) %>% cbind(grade)
+
+
+author <- author_gp %>% group_by(Author) %>% 
+  summarise(n_works = length(unique(Title)),
+            Hits = sum(Hits, na.rm = T),
+            total_words = sum(Words),
+            grade_level = mean(Grade.Level),
+            fkscore = mean(flesch.kincaid.score)) %>%
+  mutate(hits_per_work = Hits/n_works,
+         words_per_work = total_words/n_works) %>%
+  ungroup()
+
+
+author_top_10 <- author_gp %>% group_by(Author) %>% 
+  summarise(n_works = n(),
+            Hits = sum(Hits, na.rm = T),
+            total_words = sum(Words), 
+            grade_level = mean(Grade.Level),
+            fkscore = mean(flesch.kincaid.score)) %>%
+  mutate(hits_per_work = Hits/n_works,
+         words_per_work = total_words/n_works) %>%
+  ungroup() %>%
+  arrange(desc(hits_per_work)) %>% filter(row_number() <= 79)
+
+
+
+ggplot() +
+  geom_density(author, mapping = aes(x = grade_level, fill = "All authors", alpha = 0.5)) +
+  geom_density(author_top_10, mapping = aes(x = grade_level, fill = "Top 10% of Authors", alpha = 0.5)) + xlab("Average grade level") + theme_bw() + guides(fill = "none") + guides(alpha = "none", fill = guide_legend(title = NULL)) +
+  labs(y = "Density", title = "Average Grade Level of Author's Work", subtitle = "The Good Place")
+
+ggplot() +
+  geom_density(author, mapping = aes(x = fkscore, fill = "All authors", alpha = 0.5)) +
+  geom_density(author_top_10, mapping = aes(x = fkscore, fill = "Top 10% of Authors", alpha = 0.5)) + xlab("Average FK Score") + theme_bw() + guides(alpha = "none", fill = guide_legend(title = NULL)) + 
+  labs(y = "Density", title = "Average Flesch-Kincaid Score of Author's Work", subtitle = "The Good Place")
+
+
+
+mean(author$grade_level)
+mean(author_top_10$grade_level)
+
+mean(author$fkscore)
+mean(author_top_10$fkscore)
+
+```
+
+
+
+
+## Readability Analysis for Parks and Rec
+
+```{r warning = F, message = F}
+
+grade <- read.csv(file="C:/Users/aaron/Downloads/parksandrec_grade_levels.csv")
+fk <- read.csv(file="C:/Users/aaron/Downloads/parksandrec_fk_scores.csv")
+
+
+author_gp <- parks %>% filter(Words > 100)
+
+author_gp <- author_gp %>% cbind(fk) %>% cbind(grade)
+
+
+author <- author_gp %>% group_by(Author) %>% 
+  summarise(n_works = length(unique(Title)),
+            Hits = sum(Hits, na.rm = T),
+            total_words = sum(Words),
+            grade_level = mean(Level),
+            fkscore = mean(Scores)) %>%
+  mutate(hits_per_work = Hits/n_works,
+         words_per_work = total_words/n_works) %>%
+  ungroup()
+
+
+author_top_10 <- author_gp %>% group_by(Author) %>% 
+  summarise(n_works = n(),
+            Hits = sum(Hits, na.rm = T),
+            total_words = sum(Words), 
+            grade_level = mean(Level),
+            fkscore = mean(Scores)) %>%
+  mutate(hits_per_work = Hits/n_works,
+         words_per_work = total_words/n_works) %>%
+  ungroup() %>%
+  arrange(desc(hits_per_work)) %>% filter(row_number() <= 79)
+
+
+
+ggplot() +
+  geom_density(author, mapping = aes(x = grade_level, fill = "All authors", alpha = 0.5)) +
+  geom_density(author_top_10, mapping = aes(x = grade_level, fill = "Top 10% of Authors", alpha = 0.5)) + xlab("Average grade level") + theme_bw() + guides(fill = "none") + guides(alpha = "none", fill = guide_legend(title = NULL)) +
+  labs(y = "Density", title = "Average Grade Level of Author's Work", subtitle = "Parks and Rec")
+
+ggplot() +
+  geom_density(author, mapping = aes(x = fkscore, fill = "All authors", alpha = 0.5)) +
+  geom_density(author_top_10, mapping = aes(x = fkscore, fill = "Top 10% of Authors", alpha = 0.5)) + xlab("Average FK Score") + theme_bw() + guides(alpha = "none", fill = guide_legend(title = NULL)) + 
+  labs(y = "Density", title = "Average Flesch-Kincaid Score of Author's Work", subtitle = "Parks and Rec")
+
+```
+
+
+## Deep dive on Brooklyn 9-9
+Despite being the most popular in terms of number of works, the fandom is not oversaturated as it still has the highest hits:work, kudos:work, and kudos:hits ratios.
+Focusing on number of hits primarily and kudos per 100 hits secondarily
+Goal: to identify niches of high hits/kudos that aren't over saturated
+
+```{r message = F, warning = F}
+
+brooklyn <- brooklyn %>% 
+  mutate(Kudos_per_100_hits = 100*(Kudos/Hits),
+         FF = grepl("F/F", Category),
+         FM = grepl("F/M", Category),
+         MM = grepl("M/M", Category),
+         Gen = grepl("Gen", Category),
+         Multi = grepl("Multi", Category),
+         Other = grepl("Other", Category))
+
+# language (English has most hits per work)
+lang <- brooklyn %>% group_by(Language) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = T))
+ggplot(lang) + 
+  geom_bar(aes(y = reorder(Language, Hits_Per_Work), x = Hits_Per_Work), stat = "identity", fill = "blue") +
+  labs(title = "Language Popularity", subtitle = "Brooklyn Nine-Nine",x = "Hits per Fanfic", y = "Language") +
+  theme_minimal()
+
+# fandom (crossovers have less hits, but more kudos)
+brooklyn <- brooklyn %>%
+  mutate(Fandom = gsub("[][]", "", Fandom)) %>%
+  mutate(Fandom = gsub("'", "", Fandom)) %>%
+  mutate(Fandom = as.list(strsplit(Fandom, ", ")))
+
+crossovers <- brooklyn %>% mutate(Crossover = ifelse(Fandom == "Brooklyn Nine-Nine (TV)", FALSE, TRUE)) %>%
+  group_by(Crossover) %>% 
+  summarise(Hits_Per_Work = mean(Hits, na.rm = T), 
+            Kudos_per_100_hits = mean(Kudos_per_100_hits, na.rm = T))
+
+ggplot(crossovers, aes(x = Crossover, y = Hits_Per_Work, fill = Crossover)) + 
+  geom_bar(stat = "identity") +
+  labs(title = "Crossover Popularity", subtitle = "Brooklyn Nine-Nine", x = "Crossover", y = "Hits per Work") +
+  theme_classic() + guides(fill = FALSE) +
+  scale_fill_manual(values = c("orange", "lightblue"))
+  
+ggplot(crossovers, aes(x = Crossover, y = Kudos_per_100_hits, fill = Crossover)) + 
+  geom_bar(stat = "identity") +
+  labs(title = "Crossover Popularity", subtitle = "Brooklyn Nine-Nine", x = "Crossover", y = "Kudos per 100 Hits") +
+  theme_classic() + guides(fill = FALSE) +
+  scale_fill_manual(values = c("orange", "lightblue"))
+
+# rating (explicit has most hits per work, but GA has most kudos per hit)
+rating <- brooklyn %>% group_by(Rating) %>% 
+  summarise(Hits_Per_Work = mean(Hits, na.rm = T), Kudos_per_100_hits = mean(Kudos_per_100_hits, na.rm = T))
+o <- ggplot(rating) + 
+  geom_bar(aes(y = reorder(Rating, Hits_Per_Work), x = Hits_Per_Work), 
+  stat = "identity", fill = "dark green") + 
+  labs(title = "Rating Popularity", subtitle = "Brooklyn Nine-Nine", x = "Hits per Fanfic",y = "Rating") + 
+  theme_bw()
+
+ p <- ggplot(rating) + 
+  geom_bar(aes(y = reorder(Rating, Kudos_per_100_hits), x = Kudos_per_100_hits), 
+  stat = "identity", fill = "orange") + 
+  labs(title = "Rating Popularity", subtitle = "Brooklyn Nine-Nine", x = "Kudos per 100 Hits", y = "Rating") +
+  theme_bw()
+ 
+ plot_grid(o,p)
+
+# warnings (rape/non-con gets most hits per work)
+brooklyn <- brooklyn %>%
+  mutate(Warnings = gsub("[][]", "", Warnings)) %>%
+  mutate(Warnings = gsub("'", "", Warnings)) %>%
+  mutate(Warnings = as.list(strsplit(Warnings, ", ")))
+
+warnings <- brooklyn %>% pull(Warnings)
+warnings <- do.call(c, warnings)
+warnings <- sort(table(warnings))
+tail(warnings, 10)
+
+no_warnings_apply <- logical(nrow(brooklyn))
+opt_out_warnings <- logical(nrow(brooklyn))
+violence <- logical(nrow(brooklyn))
+death <- logical(nrow(brooklyn))
+rape <- logical(nrow(brooklyn))
+underage <- logical(nrow(brooklyn))
+for (i in 1:nrow(brooklyn)) {
+  no_warnings_apply[i] <- "No Archive Warnings Apply" %in% brooklyn$Warnings[[i]]
+  opt_out_warnings[i] <- "Choose Not To Use Archive Warnings" %in% brooklyn$Warnings[[i]]
+  violence[i] <- "Graphic Depictions Of Violence" %in% brooklyn$Warnings[[i]]
+  death[i] <- "Major Character Death" %in% brooklyn$Warnings[[i]]
+  rape[i] <- "Rape/Non-Con" %in% brooklyn$Warnings[[i]]
+  underage[i] <- "Underage" %in% brooklyn$Warnings[[i]]
+}
+
+brooklyn <- brooklyn %>% 
+  mutate(no_warnings_apply = as.vector(no_warnings_apply), opt_out_warnings = as.vector(opt_out_warnings), 
+         violence = as.vector(violence), death = as.vector(death),
+         rape = as.vector(rape), underage = as.vector(underage))
+
+no_warnings_apply <- brooklyn %>% group_by(no_warnings_apply) %>% 
+  summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Warning = "No Archive Warnings Apply") %>% rename("Contains" = "no_warnings_apply")
+opt_out_warnings <- brooklyn %>% group_by(opt_out_warnings) %>% 
+  summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Warning = "Choose Not To Use Archive Warnings") %>% rename("Contains" = "opt_out_warnings")
+violence <- brooklyn %>% group_by(violence) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Warning = "Graphic Depictions Of Violence") %>% rename("Contains" = "violence")
+death <- brooklyn %>% group_by(death) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Warning = "Major Character Death") %>% rename("Contains" = "death")
+rape <- brooklyn %>% group_by(rape) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Warning = "Rape/Non-Con") %>% rename("Contains" = "rape")
+underage <- brooklyn %>% group_by(underage) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Warning = "Underage") %>% rename("Contains" = "underage")
+
+warnings <- rbind(no_warnings_apply, opt_out_warnings, violence, death, rape, underage)
+ggplot(warnings) + 
+  geom_bar(aes(y = Warning, x = Hits_Per_Work, group = Contains, fill = Contains), 
+           stat = "identity", position = "dodge") +
+  labs(title = "Content Warning Popularity", subtitle = "Brooklyn Nine-Nine", x = "Hits per Fanfic", y = "Warning") + theme_bw()
+
+# number of words (more words = more hits)
+ggplot(brooklyn, aes(x = Words, y = Hits)) +
+  geom_point() +
+  geom_smooth(method = lm, se = F) +
+  labs(title = "Relationship Between Words and Hits",
+       subtitle = "Correlation = 0.36") +
+  theme_classic() + annotate("text", x = 7000, y = 74000, label = "Explicit", hjust = -0.5, vjust = -0.5) + 
+  annotate("text", x = 38000, y = 78000, label = "Mature", hjust = -0.5, vjust = -0.5)
+
+#cor(brooklyn$Words, brooklyn$Hits, use = "complete.obs")
+
+# chapters (more chapters = more hits overall, but not more hits per chapter)
+brooklyn <- brooklyn %>% 
+  separate(Chapters, into = c("Current_Chapter", "Total_Chapters"), sep = "/", remove = FALSE) 
+brooklyn$Current_Chapter <- as.numeric(brooklyn$Current_Chapter)
+
+ggplot(brooklyn, aes(x = Current_Chapter, y = Hits)) +
+  geom_point(aes(color=Rating)) + geom_smooth(method = lm, se = F) + 
+  labs(title = "Relationship Between Number of Chapters and Hits", subtitle = "Correlation = 0.27", x = "Number of Chapters") + theme_classic()
+
+#cor(brooklyn$Current_Chapter, brooklyn$Hits, use = "complete.obs")
+
+brooklyn <- brooklyn %>% mutate(Words_Per_Chapter = Words/Current_Chapter,
+                                Hits_Per_Chapter = Hits/Current_Chapter)
+
+# ggplot(brooklyn, aes(x = Current_Chapter, y = Hits_Per_Chapter)) +
+#   geom_point() + geom_smooth(method = lm, se = F) + 
+#   labs(title = "Relationship Between Number of Chapters and Hits per Chapter", subtitle = "Correlation: 0.27", x = "Number of Chapters") + theme_classic()
+
+# words per chapter (more words per chapter = more hits per chapter)
+ggplot(brooklyn, aes(x = Words_Per_Chapter, y = Hits_Per_Chapter)) + 
+  geom_point(aes(color = Rating)) + geom_smooth(method = lm, se = F) + labs(title = "Relationship Between Words per Chapter and Hits per Chapter", subtitle = "Correlation = 0.29",x = "Words per Chapter", y = "Hits per Chapter") + theme_classic()
+
+#cor(brooklyn$Words_Per_Chapter, brooklyn$Hits_Per_Chapter, use = "complete.obs")
+
+
+# category (works with multi and F/M have more hits than works without)
+ff <- brooklyn %>% group_by(FF) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Category = "F/F") %>% rename("Contains" = "FF")
+mf <- brooklyn %>% group_by(FM) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Category = "F/M") %>% rename("Contains" = "FM")
+mm <- brooklyn %>% group_by(MM) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Category = "M/M") %>% rename("Contains" = "MM")
+gen <- brooklyn %>% group_by(Gen) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Category = "Gen") %>% rename("Contains" = "Gen")
+multi <- brooklyn %>% group_by(Multi) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Category = "Multi") %>% rename("Contains" = "Multi")
+other <- brooklyn %>% group_by(Other) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Category = "Other") %>% rename("Contains" = "Other")
+
+categories <- rbind(ff, mf, mm, gen, multi, other)
+ggplot(categories) + 
+  geom_bar(aes(x = Category, y = Hits_Per_Work, group = Contains, fill = Contains), 
+           stat = "identity", position = "dodge") + 
+  labs(title = "Popularity of Pairing Categories", subtitle = "Brooklyn Nine-Nine", x = "Pairing Category", y = "Hits per Fanfic") + theme_classic()
+
+# relationship (most popular = Jake/Amy, most hits per work = Jake/Amy and Rosa/Amy)
+brooklyn <- brooklyn %>%
+  mutate(Relationships = gsub("[][]", "", Relationships)) %>%
+  mutate(Relationships = gsub(" & ", "/", Relationships)) %>%
+  mutate(Relationships = as.list(strsplit(Relationships, ", ")))
+
+relationships <- brooklyn %>%
+  filter(Relationships != "N/A") %>%
+  pull(Relationships)
+relationships <- do.call(c, relationships)
+relationships <- sort(table(relationships))
+tail(relationships, 10) # view top 10
+
+# assess most popular relationships
+jake_amy <- logical(nrow(brooklyn))
+rosa_gina <- logical(nrow(brooklyn))
+kevin_ray <- logical(nrow(brooklyn))
+rosa_amy <- logical(nrow(brooklyn))
+for (i in 1:nrow(brooklyn)) {
+  jake_amy[i] <- "'Jake Peralta/Amy Santiago'" %in% brooklyn$Relationships[[i]]
+  rosa_gina[i] <- "'Rosa Diaz/Gina Linetti'" %in% brooklyn$Relationships[[i]]
+  kevin_ray[i] <- "'Kevin Cozner/Ray Holt'" %in% brooklyn$Relationships[[i]]
+  rosa_amy[i] <- "'Rosa Diaz/Amy Santiago'" %in% brooklyn$Relationships[[i]]
+}
+
+brooklyn <- brooklyn %>% 
+  mutate(jake_amy = as.vector(jake_amy), rosa_gina = as.vector(rosa_gina), 
+         kevin_ray = as.vector(kevin_ray), rosa_amy = as.vector(rosa_amy))
+
+jake_amy <- brooklyn %>% group_by(jake_amy) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Relationship = "Jake & Amy") %>% rename("Contains" = "jake_amy")
+rosa_gina <- brooklyn %>% group_by(rosa_gina) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Relationship = "Rosa & Gina") %>% rename("Contains" = "rosa_gina")
+kevin_ray <- brooklyn %>% group_by(kevin_ray) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Relationship = "Kevin & Ray") %>% rename("Contains" = "kevin_ray")
+rosa_amy <- brooklyn %>% group_by(rosa_amy) %>% summarise(Hits_Per_Work = mean(Hits, na.rm = TRUE)) %>% 
+  mutate(Relationship = "Rosa & Amy") %>% rename("Contains" = "rosa_amy")
+
+relationships <- rbind(jake_amy, rosa_gina, kevin_ray, rosa_amy) %>% mutate(Contains = unlist(Contains))
+ggplot(relationships) + 
+  geom_bar(aes(x = Relationship, y = Hits_Per_Work, group = Contains, fill = Contains), 
+           stat = "identity", position = "dodge") + 
+  labs(title = "Popularity of Character Relationships", subtitle = "Brooklyn Nine-Nine", x = "Relationship", y = "Hits per Fanfic") + theme_classic()
+
+
+
+
+# rating comparison
+top100 <- brooklyn %>% arrange(desc(Hits)) %>% filter(row_number() <= 100)
+
+top100_rating <- data.frame(top100$Rating)
+
+rating_count <- top100_rating %>%
+  group_by(top100.Rating) %>%
+  summarize(count = n())
+
+# ab <- ggplot(rating_count, aes(x=top100.Rating, y=count, fill=top100.Rating)) +
+#   geom_bar(stat="identity", color="white") +
+#   labs(title="Ratings of Top 100 Fanfics", subtitle = "Brooklyn Nine-Nine", x=" ", y="  ") + guides(fill = F) + theme_bw() + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+
+all_rating <- brooklyn %>%
+  group_by(Rating) %>%
+  summarize(count = n())
+
+# xy <- ggplot(all_rating, aes(x=Rating, y=count, fill=Rating)) +
+#   geom_bar(stat="identity", color="white") +
+#   labs(title="Ratings of All Fanfics", subtitle = "Brooklyn Nine-Nine", x=" ", y="Number of Fanfics") + guides(fill = F) + 
+#   theme_bw() + theme(axis.text.x = element_text(angle = -45, hjust = 0))
+# 
+# plot_grid(xy, ab)
+
+
+
+
+# Add a new column to both data frames to distinguish them
+rating_count$dataset <- "Top 100 Fanfics"
+all_rating$dataset <- "All Fanfics"
+
+rating_count <- rating_count %>%
+  rename(Rating = top100.Rating)
+
+# Combine the two data frames
+combined_data <- rbind(rating_count, all_rating)
+
+ggplot(combined_rating) +
+  geom_bar(aes(x = Rating, y = n, fill = dataset), stat = "identity", position = "dodge") +
+  scale_y_continuous(labels = scales::percent_format(), limits = c(0, 0.42)) +
+guides(fill = guide_legend(title = " ")) +
+  labs(title = "Rating Popularity",
+       subtitle = "Brooklyn Nine-Nine",
+       x = "Rating",
+       y = " ") + theme_bw() + theme(axis.text.x = element_text(angle = -45, hjust = 0)) 
+
+
+
+
+
+
+```
+
+
+### Main takeaways:
+
+Alice needs to focus her writing on Brooklyn 99 as it is the most popular fandom within the Schurniverse by almost every metric. She also needs to write explicit content. 15 out of the top 20 most popular fanfics in the Brooklyn 99 fandom are rated 'explicit' or 'mature'. Non-con fanfiction is an under-saturated warning category that Alice can take advantage of. Fanfics containing non-con content have about twice the number of hits per work. Less than 1% of Brooklyn Nine-Nine fanfics contain this warning.
+
+Fanfics with Jake & Amy and Rosa & Amy also get over 1,000 more hits per work than the fanfics without these couplings. 
+
+Fanfics with explicit content received over 8,000 hits per work. The next most popular rating was Mature with less than 5,000 hits per work by comparison.
+
+Relationship categories with the most hits per work are F/M and Multi. Fanfics that contained F/M had more than 1,000 hits per work more than fanfics without F/M.
+
+Chapters with more words also got a bump in hits, up to a certain point. 
+
+
+## Additional EDA Plots (nothing too interesting)
+
+```{r warning = F, message = F}
+
+parks <- parks %>%
+  filter(!is.na(Kudos), Kudos > 0)
+avg_kudos_by_rating <- parks %>%
+  group_by(Rating) %>%
+  summarize(avg_kudos = mean(Kudos))
+ggplot(avg_kudos_by_rating, aes(x = Rating, y = avg_kudos, fill = Rating)) +
+  geom_col() +
+  labs(x = "Rating", y = "Average Kudos", title = "Average Kudos by Rating (Parks and Rec)") +
+  scale_fill_discrete(name = "Rating") +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
+  guides(fill = FALSE) + theme_bw()
+
+office <- office %>%
+  filter(!is.na(Kudos), Kudos > 0)
+avg_kudos_by_rating <- office %>%
+  group_by(Rating) %>%
+  summarize(avg_kudos = mean(Kudos))
+ggplot(avg_kudos_by_rating, aes(x = Rating, y = avg_kudos, fill = Rating)) +
+  geom_col() +
+  labs(x = "Rating", y = "Average Kudos", title = "Average Kudos by Rating (The Office)") +
+  scale_fill_discrete(name = "Rating") +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
+  guides(fill = FALSE) + theme_bw()
+
+
+brooklyn <- brooklyn %>%
+  filter(!is.na(Kudos), Kudos > 0)
+avg_kudos_by_rating <- brooklyn %>%
+  group_by(Rating) %>%
+  summarize(avg_kudos = mean(Kudos))
+ggplot(avg_kudos_by_rating, aes(x = Rating, y = avg_kudos, fill = Rating)) +
+  geom_col() +
+  labs(x = "Rating", y = "Average Kudos", title = "Average Kudos by Rating (Brooklyn Nine-Nine)") +
+  scale_fill_discrete(name = "Rating") +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
+  guides(fill = FALSE) + theme_bw()
+
+
+goodplace <- goodplace %>%
+  filter(!is.na(Kudos), Kudos > 0)
+avg_kudos_by_rating <- goodplace %>%
+  group_by(Rating) %>%
+  summarize(avg_kudos = mean(Kudos))
+ggplot(avg_kudos_by_rating, aes(x = Rating, y = avg_kudos, fill = Rating)) +
+  geom_col() +
+  labs(x = "Rating", y = "Average Kudos", title = "Average Kudos by Rating (The Good Place)") +
+  scale_fill_discrete(name = "Rating") +
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
+  guides(fill = FALSE) + theme_bw()
+
+```
+
+
+```{r warning = F, message = F}
+
+ggplot(schurniverse, aes(x = Rating, y = Hits)) +
+  geom_violin() +
+  labs(title = "Boxplot of Hits by Rating in the Schurniverse")
+
+ggplot(schurniverse, aes(x = Rating, y = Kudos)) +
+  geom_violin() +
+  labs(title = "Boxplot of Kudos by Rating in the Schurniverse")
+
+ggplot(office, aes(x = Rating, y = Kudos)) +
+  geom_violin() +
+  labs(title = "Boxplot of Kudos by Rating (The Office)")
+
+ggplot(brooklyn, aes(x = Rating, y = Kudos)) +
+  geom_violin() +
+  labs(title = "Boxplot of Kudos by Rating (Brooklyn Nine-Nine)")
+
+ggplot(parks, aes(x = Rating, y = Kudos)) +
+  geom_violin() +
+  labs(title = "Boxplot of Kudos by Rating (Parks and Rec)")
+
+ggplot(goodplace, aes(x = Rating, y = Kudos)) +
+  geom_violin() +
+  labs(title = "Boxplot of Kudos by Rating (The Good Place)")
+
+```
+
+```{r warning = F, message = F}
+
+ggplot(schurniverse, aes(x = Hits, y = Kudos)) +
+  geom_point() +
+  labs(x = "Hits", y = "Kudos", title = "Hits vs. Kudos in the Schurniverse")
+
+ggplot(office, aes(x = Hits, y = Kudos)) +
+  geom_point() +
+  labs(x = "Hits", y = "Kudos", title = "Hits vs. Kudos (The Office)")
+
+ggplot(brooklyn, aes(x = Hits, y = Kudos)) +
+  geom_point() +
+  labs(x = "Hits", y = "Kudos", title = "Hits vs. Kudos (Brooklyn Nine-Nine)")
+
+ggplot(parks, aes(x = Hits, y = Kudos)) +
+  geom_point() +
+  labs(x = "Hits", y = "Kudos", title = "Hits vs. Kudos (Parks and Rec)")
+
+ggplot(goodplace, aes(x = Hits, y = Kudos)) +
+  geom_point() +
+  labs(x = "Hits", y = "Kudos", title = "Hits vs. Kudos (The Good Place)")
+
+```
+
+```{r warning = F, message = F}
+
+parks <- parks %>%
+  filter(!is.na(Words), Words > 0, !is.na(Kudos), Kudos > 0)
+ggplot(parks, aes(x = Words, y = Kudos)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Kudos", title = "Relationship Between Word Count and Kudos") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+office <- office %>%
+  filter(!is.na(Words), Words > 0, !is.na(Kudos), Kudos > 0)
+ggplot(office, aes(x = Words, y = Kudos)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Kudos", title = "Relationship Between Word Count and Kudos") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+brooklyn <- brooklyn %>%
+  filter(!is.na(Words), Words > 0, !is.na(Kudos), Kudos > 0)
+ggplot(brooklyn, aes(x = Words, y = Kudos)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Kudos", title = "Relationship Between Word Count and Kudos") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+goodplace <- goodplace %>%
+  filter(!is.na(Words), Words > 0, !is.na(Kudos), Kudos > 0)
+ggplot(goodplace, aes(x = Words, y = Kudos)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Kudos", title = "Relationship Between Word Count and Kudos") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+```
+
+```{r warning = F, message = F}
+
+parks <- parks %>%
+  filter(!is.na(Words), Words > 0, !is.na(Hits), Hits > 0)
+ggplot(parks, aes(x = Words, y = Hits)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Hits", title = "Relationship Between Word Count and Hits") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+office <- office %>%
+  filter(!is.na(Words), Words > 0, !is.na(Hits), Hits > 0)
+ggplot(office, aes(x = Words, y = Hits)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Hits", title = "Relationship Between Word Count and Hits") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+brooklyn <- brooklyn %>%
+  filter(!is.na(Words), Words > 0, !is.na(Hits), Hits > 0)
+ggplot(brooklyn, aes(x = Words, y = Hits)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Hits", title = "Relationship Between Word Count and Hits") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+
+goodplace <- goodplace %>%
+  filter(!is.na(Words), Words > 0, !is.na(Hits), Hits > 0)
+ggplot(goodplace, aes(x = Words, y = Hits)) +
+  geom_point() +
+  labs(x = "Word Count", y = "Hits", title = "Relationship Between Word Count and Hits") +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma)
+
+```
+
