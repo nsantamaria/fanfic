@@ -1,5 +1,5 @@
-Codes for various analyses performed for story metrics.
+# Codes for various analyses performed for story metrics.
 
-.Rmd indicates R functionality using R 4.23.
+## .Rmd indicates R functionality using R 4.23.
 
-.py indicates Python functionality using Python 3.1.8 and PySpark.
+## .py indicates Python functionality using Python 3.1.8 and PySpark.
